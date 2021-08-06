@@ -1,29 +1,29 @@
 const ClientError = require('../../exceptions/ClientError');
 
-class NotesHandler {
+class MusicsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
 
-    this.postNoteHandler = this.postNoteHandler.bind(this);
-    this.getNotesHandler = this.getNotesHandler.bind(this);
-    this.getNoteByIdHandler = this.getNoteByIdHandler.bind(this);
-    this.putNoteByIdHandler = this.putNoteByIdHandler.bind(this);
-    this.deleteNoteByIdHandler = this.deleteNoteByIdHandler.bind(this);
+    this.postMusicHandler = this.postMusicHandler.bind(this);
+    this.getMusicsHandler = this.getMusicsHandler.bind(this);
+    this.getMusicByIdHandler = this.getMusicByIdHandler.bind(this);
+    this.putMusicByIdHandler = this.putMusicByIdHandler.bind(this);
+    this.deleteMusicByIdHandler = this.deleteMusicByIdHandler.bind(this);
   }
 
-  async postNoteHandler(request, h) {
+  async postMusicHandler(request, h) {
     try {
-      this._validator.validateNotePayload(request.payload);
+      this._validator.validateMusicPayload(request.payload);
       const { title = 'untitled', body, tags } = request.payload;
 
-      const noteId = await this._service.addNote({ title, body, tags });
+      const musicId = await this._service.addMusic({ title, body, tags });
 
       const response = h.response({
         status: 'success',
         message: 'Catatan berhasil ditambahkan',
         data: {
-          noteId,
+          musicId,
         },
       });
       response.code(201);
@@ -49,24 +49,24 @@ class NotesHandler {
     }
   }
 
-  async getNotesHandler() {
-    const notes = await this._service.getNotes();
+  async getMusicsHandler() {
+    const musics = await this._service.getMusics();
     return {
       status: 'success',
       data: {
-        notes,
+        musics,
       },
     };
   }
 
-  async getNoteByIdHandler(request, h) {
+  async getMusicByIdHandler(request, h) {
     try {
       const { id } = request.params;
-      const note = await this._service.getNoteById(id);
+      const music = await this._service.getMusicById(id);
       return {
         status: 'success',
         data: {
-          note,
+          music,
         },
       };
     } catch (error) {
@@ -90,12 +90,12 @@ class NotesHandler {
     }
   }
 
-  async putNoteByIdHandler(request, h) {
+  async putMusicByIdHandler(request, h) {
     try {
-      this._validator.validateNotePayload(request.payload);
+      this._validator.validateMusicPayload(request.payload);
       const { id } = request.params;
 
-      await this._service.editNoteById(id, request.payload);
+      await this._service.editMusicById(id, request.payload);
 
       return {
         status: 'success',
@@ -122,10 +122,10 @@ class NotesHandler {
     }
   }
 
-  async deleteNoteByIdHandler(request, h) {
+  async deleteMusicByIdHandler(request, h) {
     try {
       const { id } = request.params;
-      await this._service.deleteNoteById(id);
+      await this._service.deleteMusicById(id);
 
       return {
         status: 'success',
@@ -153,4 +153,4 @@ class NotesHandler {
   }
 }
 
-module.exports = NotesHandler;
+module.exports = MusicsHandler;
