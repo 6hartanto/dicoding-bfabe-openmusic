@@ -7,13 +7,13 @@ class MusicsService {
     this._musics = [];
   }
 
-  addMusic({ title, body, tags }) {
+  addMusic({ title, year, performer, genre, duration }) {
     const id = nanoid(16);
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
+    const insertedAt = new Date().toISOString();
+    const updatedAt = insertedAt;
 
     const newMusic = {
-      title, tags, body, id, createdAt, updatedAt,
+      title, year, performer, genre, duration, id, insertedAt, updatedAt,
     };
 
     this._musics.push(newMusic);
@@ -21,7 +21,7 @@ class MusicsService {
     const isSuccess = this._musics.filter((music) => music.id === id).length > 0;
 
     if (!isSuccess) {
-      throw new InvariantError('Catatan gagal ditambahkan');
+      throw new InvariantError('Lagu gagal ditambahkan');
     }
 
     return id;

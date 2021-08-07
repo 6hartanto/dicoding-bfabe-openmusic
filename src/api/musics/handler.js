@@ -15,15 +15,15 @@ class MusicsHandler {
   async postMusicHandler(request, h) {
     try {
       this._validator.validateMusicPayload(request.payload);
-      const { title = 'untitled', body, tags } = request.payload;
+      const { title = 'untitled', year, performer, genre, duration } = request.payload;
 
-      const musicId = await this._service.addMusic({ title, body, tags });
+      const songId = await this._service.addMusic({ title, year, performer, genre, duration });
 
       const response = h.response({
         status: 'success',
-        message: 'Catatan berhasil ditambahkan',
+        message: 'Lagu berhasil ditambahkan',
         data: {
-          musicId,
+          songId,
         },
       });
       response.code(201);
@@ -50,11 +50,11 @@ class MusicsHandler {
   }
 
   async getMusicsHandler() {
-    const musics = await this._service.getMusics();
+    const songs = await this._service.getMusics();
     return {
       status: 'success',
       data: {
-        musics,
+        songs,
       },
     };
   }
