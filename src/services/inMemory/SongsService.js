@@ -2,23 +2,23 @@ const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
-class MusicsService {
+class SongsService {
   constructor() {
-    this._musics = [];
+    this._songs = [];
   }
 
-  addMusic({ title, year, performer, genre, duration }) {
+  addSong({ title, year, performer, genre, duration }) {
     const id = nanoid(16);
     const insertedAt = new Date().toISOString();
     const updatedAt = insertedAt;
 
-    const newMusic = {
+    const newSong = {
       title, year, performer, genre, duration, id, insertedAt, updatedAt,
     };
 
-    this._musics.push(newMusic);
+    this._songs.push(newSong);
 
-    const isSuccess = this._musics.filter((music) => music.id === id).length > 0;
+    const isSuccess = this._songs.filter((song) => song.id === id).length > 0;
 
     if (!isSuccess) {
       throw new InvariantError('Lagu gagal ditambahkan');
@@ -27,20 +27,20 @@ class MusicsService {
     return id;
   }
 
-  getMusics() {
-    return this._musics;
+  getSongs() {
+    return this._songs;
   }
 
-  getMusicById(id) {
-    const music = this._musics.filter((n) => n.id === id)[0];
-    if (!music) {
-      throw new NotFoundError('Catatan tidak ditemukan');
+  getSongById(id) {
+    const song = this._songs.filter((n) => n.id === id)[0];
+    if (!song) {
+      throw new NotFoundError('Lagu tidak ditemukan');
     }
-    return music;
+    return song;
   }
 
-  editMusicById(id, { title, body, tags }) {
-    const index = this._musics.findIndex((music) => music.id === id);
+  editSongById(id, { title, body, tags }) {
+    const index = this._songs.findIndex((song) => song.id === id);
 
     if (index === -1) {
       throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan');
@@ -48,8 +48,8 @@ class MusicsService {
 
     const updatedAt = new Date().toISOString();
 
-    this._musics[index] = {
-      ...this._musics[index],
+    this._songs[index] = {
+      ...this._songs[index],
       title,
       tags,
       body,
@@ -57,13 +57,13 @@ class MusicsService {
     };
   }
 
-  deleteMusicById(id) {
-    const index = this._musics.findIndex((music) => music.id === id);
+  deleteSongById(id) {
+    const index = this._songs.findIndex((song) => song.id === id);
     if (index === -1) {
       throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan');
     }
-    this._musics.splice(index, 1);
+    this._songs.splice(index, 1);
   }
 }
 
-module.exports = MusicsService;
+module.exports = SongsService;
