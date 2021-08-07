@@ -41,8 +41,7 @@ class SongsHandler {
       // Server ERROR!
       const response = h.response({
         status: 'error',
-        // message: 'Maaf, terjadi kegagalan pada server kami.',
-        message: error.message,
+        message: 'Maaf, terjadi kegagalan pada server kami.',
       });
       response.code(500);
       console.error(error);
@@ -104,7 +103,7 @@ class SongsHandler {
 
       return {
         status: 'success',
-        message: 'Catatan berhasil diperbarui',
+        message: 'Lagu berhasil diperbarui',
       };
     } catch (error) {
       if (error instanceof ClientError) {
@@ -119,7 +118,8 @@ class SongsHandler {
       // Server ERROR!
       const response = h.response({
         status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
+        // message: 'Maaf, terjadi kegagalan pada server kami.',
+        message: error.message,
       });
       response.code(500);
       console.error(error);
@@ -134,7 +134,7 @@ class SongsHandler {
 
       return {
         status: 'success',
-        message: 'Catatan berhasil dihapus',
+        message: 'Lagu berhasil dihapus',
       };
     } catch (error) {
       if (error instanceof ClientError) {

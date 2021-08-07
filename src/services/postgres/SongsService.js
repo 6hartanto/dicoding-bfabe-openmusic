@@ -47,17 +47,17 @@ class SongsService {
     return result.rows.map(mapDBToModel)[0];
   }
 
-  async editSongById(id, { title, body, tags }) {
+  async editSongById(id, { title, year, performer, genre, duration }) {
     const updatedAt = new Date().toISOString();
     const query = {
-      text: 'UPDATE songs SET title = $1, body = $2, tags = $3, updated_at = $4 WHERE id = $5 RETURNING id',
-      values: [title, body, tags, updatedAt, id],
+      text: 'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7 RETURNING id',
+      values: [title, year, performer, genre, duration, updatedAt, id],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan');
     }
   }
 
@@ -70,7 +70,7 @@ class SongsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan');
+      throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
     }
   }
 }
