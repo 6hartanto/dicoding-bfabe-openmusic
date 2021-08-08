@@ -36,8 +36,15 @@ const init = async () => {
       });
       newResponse.code(response.statusCode);
       return newResponse;
-    } if (response instanceof Error) {
-      console.log(response);
+    } else if (response.output) {
+      if (response.output.statusCode === 500) {
+        const newResponse = h.response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami',
+        });
+        newResponse.code(500);
+        return newResponse;
+      }
     }
 
     return response.continue || response;
