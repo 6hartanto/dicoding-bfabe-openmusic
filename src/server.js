@@ -2,13 +2,22 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+
+//songs
 const songs = require('./api/songs');
-const ClientError = require('./exceptions/ClientError');
 const SongsService = require('./services/postgres/SongsService');
 const SongsValidator = require('./validator/songs');
 
+//users
+const users = require('./api/users');
+const UsersService = require('./services/postgres/UsersService');
+const UsersValidator = require('./validator/users');
+
+const ClientError = require('./exceptions/ClientError');
+
 const init = async () => {
   const songsService = new SongsService();
+  const usersService = new UsersService();
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -19,13 +28,22 @@ const init = async () => {
     },
   });
 
-  await server.register({
-    plugin: songs,
-    options: {
-      service: songsService,
-      validator: SongsValidator,
+  await server.register([
+    {
+      plugin: songs,
+      options: {
+        service: songsService,
+        validator: SongsValidator,
+      },
     },
-  });
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      }
+    }
+  ]);
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
@@ -40,7 +58,8 @@ const init = async () => {
       if (response.output.statusCode === 500) {
         const newResponse = h.response({
           status: 'error',
-          message: 'Maaf, terjadi kegagalan pada server kami',
+          // message: 'Maaf, terjadi kegagalan pada server kami',
+          message: error.message,
         });
         newResponse.code(500);
         return newResponse;
