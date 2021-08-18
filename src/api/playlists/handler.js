@@ -1,4 +1,3 @@
-const ClientError = require('../../exceptions/ClientError');
 class PlaylistsHandler {
   constructor(service, validator) {
     this._service = service;
@@ -6,9 +5,7 @@ class PlaylistsHandler {
 
     this.postPlaylistHandler = this.postPlaylistHandler.bind(this);
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this);
-    this.getPlaylistByIdHandler = this.getPlaylistByIdHandler.bind(this);
-    this.putPlaylistByIdHandler = this.putPlaylistByIdHandler.bind(this);
-    this.deletePlaylistByIdHandler = this.deletePlaylistByIdHandler.bind(this);
+    this.deletePlaylistHandler = this.deletePlaylistHandler.bind(this);
   }
 
   async postPlaylistHandler(request, h) {
@@ -42,40 +39,11 @@ class PlaylistsHandler {
     };
   }
 
-  async getPlaylistByIdHandler(request, h) {
+  async deletePlaylistHandler(request, h) {
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
-    await this._service.verifyNoteOwner(id, credentialId);
-    const playlist = await this._service.getPlaylistById(id);
-    return {
-      status: 'success',
-      data: {
-        playlist,
-      },
-    };
-  }
-
-  async putPlaylistByIdHandler(request, h) {
-    this._validator.validatePlaylistPayload(request.payload);
-    const { id } = request.params;
-    const { id: credentialId } = request.auth.credentials;
-
-    await this._service.verifyNoteOwner(id, credentialId);
-    await this._service.editPlaylistById(id, request.payload);
-
-    return {
-      status: 'success',
-      message: 'Lagu berhasil diperbarui',
-    };
-  }
-
-  async deletePlaylistByIdHandler(request, h) {
-    const { id } = request.params;
-    const { id: credentialId } = request.auth.credentials;
-
-    await this._service.verifyNoteOwner(id, credentialId);
-    await this._service.deletePlaylistById(id);
+    await this._service.deletePlaylist(id, credentialId);
 
     return {
       status: 'success',

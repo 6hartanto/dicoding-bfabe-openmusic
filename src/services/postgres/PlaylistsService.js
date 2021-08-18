@@ -38,44 +38,15 @@ class PlaylistsService {
     return result.rows;
   }
 
-  async getPlaylistById(id) {
+  async deletePlaylist(id, owner) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE id = $1',
-      values: [id],
-    };
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new NotFoundError('Lagu tidak ditemukan');
-    }
-
-    return result.rows[0].id;
-  }
-
-  async editPlaylistById(id, { title, year, performer, genre, duration }) {
-    const updatedAt = new Date().toISOString();
-    const query = {
-      text: 'UPDATE playlists SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7 RETURNING id',
-      values: [title, year, performer, genre, duration, updatedAt, id],
+      text: 'DELETE FROM playlists WHERE id = $1 AND owner = $2',
+      values: [id, owner],
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan');
-    }
-  }
-
-  async deletePlaylistById(id) {
-    const query = {
-      text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
-      values: [id],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
+    if (result.rowCount === 0) {
+      throw new AuthorizationError(`Playlist ${id} tidak bisa dihapus`);
     }
   }
   
