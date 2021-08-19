@@ -1,4 +1,4 @@
-// mengimpor dotenv dan menjalankan konfigurasinya
+//mengimpor dotenv dan menjalankan konfigurasinya
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
@@ -25,15 +25,21 @@ const AuthenticationsService = require('./services/postgres/AuthenticationsServi
 const TokenManager = require('./tokenize/TokenManager');
 const AuthenticationsValidator = require('./validator/authentications');
 
-// plugin playlistSongs
+//playlistSongs
 const playlistSongs = require('./api/playlistSongs');
 const PlaylistSongsService = require('./services/postgres/PlaylistSongsService');
 const PlaylistSongsValidator = require('./validator/playlistSongs');
+
+//collaborations
+const collaborations = require('./api/collaborations');
+const CollaborationsService = require('./services/postgres/CollaborationsService');
+const CollaborationsValidator = require('./validator/collaborations');
 
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const songsService = new SongsService();
+  const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
@@ -110,6 +116,14 @@ const init = async () => {
         playlistSongsService,
         playlistsService,
         validator: PlaylistSongsValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationsService,
+        playlistsService,
+        validator: CollaborationsValidator,
       },
     },
   ]);

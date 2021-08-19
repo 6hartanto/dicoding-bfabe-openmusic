@@ -39,6 +39,33 @@ class PlaylistsHandler {
     };
   }
 
+  // async putPlaylistByIdHandler(request, h) {
+  //   this._validator.validatePlaylistPayload(request.payload);
+  //     const { id } = request.params;
+  //     const { id: credentialId } = request.auth.credentials;
+ 
+  //     await this._service.verifyPlaylistAccess(id, credentialId);
+  //     await this._service.editPlaylistById(id, request.payload);
+  //     return {
+  //       status: 'success',
+  //       message: 'Catatan berhasil diperbarui',
+  //     };
+  // }
+
+  // async getPlaylistByIdHandler(request, h) {
+  //   const { id } = request.params;
+  //     const { id: credentialId } = request.auth.credentials;
+ 
+  //     await this._service.verifyPlaylistAccess(id, credentialId);
+  //     const playlist = await this._service.getPlaylistById(id);
+  //     return {
+  //       status: 'success',
+  //       data: {
+  //         playlist,
+  //       },
+  //     };
+  // }
+
   async deletePlaylistHandler(request, h) {
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;
