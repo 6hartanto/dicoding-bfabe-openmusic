@@ -12,6 +12,7 @@ const SongsValidator = require('./validator/songs');
 //playlists
 const playlists = require('./api/playlists');
 const PlaylistsService = require('./services/postgres/PlaylistsService');
+const PlaylistSongsService = require('./services/postgres/PlaylistSongsService');
 const PlaylistsValidator = require('./validator/playlists');
 
 //users
@@ -25,11 +26,6 @@ const AuthenticationsService = require('./services/postgres/AuthenticationsServi
 const TokenManager = require('./tokenize/TokenManager');
 const AuthenticationsValidator = require('./validator/authentications');
 
-//playlistSongs
-const playlistSongs = require('./api/playlistSongs');
-const PlaylistSongsService = require('./services/postgres/PlaylistSongsService');
-const PlaylistSongsValidator = require('./validator/playlistSongs');
-
 //collaborations
 const collaborations = require('./api/collaborations');
 const CollaborationsService = require('./services/postgres/CollaborationsService');
@@ -40,7 +36,7 @@ const ClientError = require('./exceptions/ClientError');
 const init = async () => {
   const songsService = new SongsService();
   const collaborationsService = new CollaborationsService();
-  const playlistsService = new PlaylistsService((collaborationsService));
+  const playlistsService = new PlaylistsService(collaborationsService);
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const playlistSongsService = new PlaylistSongsService();
@@ -90,7 +86,9 @@ const init = async () => {
     {
       plugin: playlists,
       options: {
-        service: playlistsService,
+        playlistsService,
+        songsService,
+        playlistSongsService,
         validator: PlaylistsValidator,
       },
     },
@@ -108,14 +106,6 @@ const init = async () => {
         usersService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
-      },
-    },
-    {
-      plugin: playlistSongs,
-      options: {
-        playlistSongsService,
-        playlistsService,
-        validator: PlaylistSongsValidator,
       },
     },
     {

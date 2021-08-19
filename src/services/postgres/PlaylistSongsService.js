@@ -1,56 +1,45 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
-const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistSongsService {
   constructor() {
-    this.pool = new Pool();
+    this._pool = new Pool();
   }
 
-  addSongToPlaylist = async (playlistId, songId) => {
-    const id = `playlistSong-${nanoid(16)}`;
+  async addSongToPlaylist(playlistId, songId) {
+    const id = `playSong-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO playlistsongs (id, playlist_id, song_id) VALUES ($1, $2, $3) ',
+      text: 'INSERT INTO playlistsongs VALUES($1, $2, $3) RETURNING id',
       values: [id, playlistId, songId],
     };
-
-    try {
-      const result = await this.pool.query(query);
-      if (result.rowCount === 0) {
-        throw new InvariantError('Could not add song to playlist');
-      }
-    } catch (error) {
-      throw new InvariantError('song id not found');
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Lagu gagal ditambahkan ke playlist');
     }
-  };
+  }
 
-  getAllSongFromPlaylist = async (playlistId, creadentialId) => {
+  async getSongsFromPlaylist(playlistId) {
     const query = {
-      text: `SELECT songs.id, songs.title, songs.performer FROM playlistsongs 
-          JOIN playlists ON playlistsongs.playlist_id = playlists.id 
-          JOIN songs ON playlistsongs.song_id = songs.id
-          WHERE playlists.id = $1 AND playlists.owner = $2`,
-      values: [playlistId, creadentialId],
+      text: 'SELECT songs.id, songs.title,songs.performer FROM playlists INNER JOIN playlistsongs ON playlistsongs.playlist_id = playlists.id INNER JOIN songs ON songs.id = playlistsongs.song_id WHERE playlists.id = $1',
+      values: [playlistId],
     };
-    const result = await this.pool.query(query);
-    if (result.rowCount === 0) {
-      throw new NotFoundError(`Could not find playlist with id ${playlistId}`);
+    const result = await this._pool.query(query);
+    if (!result.rows) {
+      throw new InvariantError('Gagal Memuat lagu dari playlist');
     }
     return result.rows;
-  };
+  }
 
-  deleteSongFromPlaylist = async (playlistId, songId) => {
+  async deleteSongFromPlaylist(playlistId, songId) {
     const query = {
-      text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2',
+      text: 'DELETE FROM playlistsongs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
       values: [playlistId, songId],
     };
-
-    const result = await this.pool.query(query);
-    if (result.rowCount === 0) {
-      throw new InvariantError('Could not delete song from playlist');
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Lagu gagal dihapus dari playlist, Id tidak ditemukan');
     }
-  };
+  }
 }
-
 module.exports = PlaylistSongsService;
