@@ -58,8 +58,6 @@ class PlaylistsHandler {
     const { playlistId } = request.params;
     const { songId } = request.payload;
 
-    // await this._songsService.verifySongIsExist(songId);
-    // await this._playlistsService.verifyPlaylistIsExist(playlistId);
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
     await this._playlistSongsService.addSongToPlaylist(playlistId, songId);
 
@@ -92,7 +90,6 @@ class PlaylistsHandler {
     const { playlistId } = request.params;
     const { songId } = request.payload;
 
-    // await this._playlistsService.verifyPlaylistIsExist(playlistId);
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
     await this._playlistSongsService.deleteSongFromPlaylist(playlistId, songId);
 
