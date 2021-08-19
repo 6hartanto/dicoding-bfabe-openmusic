@@ -40,7 +40,7 @@ const ClientError = require('./exceptions/ClientError');
 const init = async () => {
   const songsService = new SongsService();
   const collaborationsService = new CollaborationsService();
-  const playlistsService = new PlaylistsService();
+  const playlistsService = new PlaylistsService((collaborationsService));
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const playlistSongsService = new PlaylistSongsService();
