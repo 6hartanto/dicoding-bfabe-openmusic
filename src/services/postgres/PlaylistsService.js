@@ -5,9 +5,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor(collaborationService) {
+  constructor(collaborationService, cacheService) {
     this._pool = new Pool();
     this._collaborationService = collaborationService;
+    this._cacheService = cacheService;
   }
 
   async verifyPlaylistOwner(id, owner) {
@@ -17,7 +18,7 @@ class PlaylistsService {
     };
     const result = await this._pool.query(query);
     if (!result.rowCount) {
-      throw new NotFoundError('Catatan tidak ditemukan');
+      throw new NotFoundError('Playlist tidak ditemukan');
     }
     const playlist = result.rows[0];
     if (playlist.owner !== owner) {
@@ -55,20 +56,31 @@ class PlaylistsService {
       throw new InvariantError('Playlist gagal ditambahkan');
     }
 
+    await this._cacheService.delete(`playlists:${owner}`);
     return result.rows[0].id;
   }
 
   async getPlaylists(owner) {
-    const query = {
-      text: `SELECT playlists.id, playlists.name, users.username 
-      FROM playlists JOIN users ON playlists.owner = users.id 
-      LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
-      WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
-      values: [owner],
-    };
+    try {
+      // mendapatkan playlist dari cache
+      const result = await this._cacheService.get(`playlists:${owner}`);
+      return JSON.parse(result);
+    } catch (error) {
+      // mendapatkan playlist dari database
+      const query = {
+        text: `SELECT playlists.id, playlists.name, users.username 
+        FROM playlists JOIN users ON playlists.owner = users.id 
+        LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
+        WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
+        values: [owner],
+      };
+  
+      const result = await this._pool.query(query);
 
-    const result = await this._pool.query(query);
-    return result.rows;
+      // menyimpan playlist pada cache sebelum fungsi getPlaylists
+      await this._cacheService.set(`playlists:${owner}`, JSON.stringify(result.rows));
+      return result.rows;
+    }
   }
 
   async deletePlaylist(id, owner) {
@@ -81,6 +93,7 @@ class PlaylistsService {
     if (result.rowCount === 0) {
       throw new AuthorizationError(`Playlist ${id} tidak bisa dihapus`);
     }
+    await this._cacheService.delete(`playlists:${owner}`);
   }
   
   

@@ -43,15 +43,19 @@ const uploads = require('./api/uploads');
 const StorageService = require('./services/storage/StorageService');
 const UploadsValidator = require('./validator/uploads');
 
+// cache
+const CacheService = require('./services/redis/CacheService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
+  const cacheService = new CacheService();
   const songsService = new SongsService();
-  const collaborationsService = new CollaborationsService();
-  const playlistsService = new PlaylistsService(collaborationsService);
+  const collaborationsService = new CollaborationsService(cacheService);
+  const playlistsService = new PlaylistsService(collaborationsService, cacheService);
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const playlistSongsService = new PlaylistSongsService();
+  const playlistSongsService = new PlaylistSongsService(cacheService);
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
   const server = Hapi.server({
@@ -162,8 +166,7 @@ const init = async () => {
       if (response.output.statusCode === 500) {
         const newResponse = h.response({
           status: 'error',
-          // message: 'Maaf, terjadi kegagalan pada server kami',
-          message: error.message,
+          message: 'Maaf, terjadi kegagalan pada server kami',
         });
         newResponse.code(500);
         return newResponse;
