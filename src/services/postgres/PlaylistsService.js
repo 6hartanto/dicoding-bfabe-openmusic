@@ -95,10 +95,6 @@ class PlaylistsService {
     }
     await this._cacheService.delete(`playlists:${owner}`);
   }
-  
-  
-
-  
 }
 
 module.exports = PlaylistsService;
